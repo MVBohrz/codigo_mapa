@@ -36,19 +36,15 @@ class _MapScreenState extends State<MapScreen> {
   // Armazena a última posição tocada pelo usuário
   LatLng? _tappedPosition;
 
-  // Armazena os marcadores no mapa (vamos usar apenas um)
+  // Armazena os marcadores no mapa 
   final Set<Marker> _markers = {};
 
-  /// Método chamado quando o usuário toca no mapa
   void _onMapTapped(LatLng position) {
     setState(() {
-      // Atualiza a posição tocada
-      _tappedPosition = position;
+            _tappedPosition = position;      
       
-      // Limpa marcadores antigos
       _markers.clear();
       
-      // Adiciona um novo marcador na posição tocada
       _markers.add(
         Marker(
           markerId: const MarkerId('tapped_location'),
@@ -69,25 +65,21 @@ class _MapScreenState extends State<MapScreen> {
         title: const Text('Clique no Mapa'),
       ),
       body: Stack(
-        children: [
-          // O Mapa do Google
+        children: [          
           GoogleMap(
             initialCameraPosition: _initialCameraPosition,
             onTap: _onMapTapped,
             markers: _markers,
             mapType: MapType.normal,
-          ),
+          ),          
           
-          // O Card que mostra as coordenadas
           _buildInfoCard(),
         ],
       ),
     );
   }
-
-  /// Widget para construir o card de informações na parte inferior
-  Widget _buildInfoCard() {
-    // Se nenhum local foi tocado, mostra um texto de ajuda
+  
+  Widget _buildInfoCard() {    
     if (_tappedPosition == null) {
       return Positioned(
         bottom: 20,
@@ -106,8 +98,7 @@ class _MapScreenState extends State<MapScreen> {
         ),
       );
     }
-
-    // Se um local foi tocado, mostra as coordenadas
+    
     return Positioned(
       bottom: 20,
       left: 20,
@@ -123,8 +114,7 @@ class _MapScreenState extends State<MapScreen> {
                 'Coordenadas do Ponto',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 10),
-              // Formata a latitude e longitude com 6 casas decimais
+              const SizedBox(height: 10),              
               Text(
                 'Latitude: ${_tappedPosition!.latitude.toStringAsFixed(6)}',
                 style: const TextStyle(fontSize: 16),

@@ -1,0 +1,142 @@
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Coordenadas do Mapa',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MapScreen(),
+    );
+  }
+}
+
+class MapScreen extends StatefulWidget {
+  const MapScreen({super.key});
+
+  @override
+  State<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  static const CameraPosition _initialCameraPosition = CameraPosition(
+    target: LatLng(-28.635134, -53.095506),
+    zoom: 12,
+  );
+
+  // Armazena a última posição tocada pelo usuário
+  LatLng? _tappedPosition;
+
+  // Armazena os marcadores no mapa (vamos usar apenas um)
+  final Set<Marker> _markers = {};
+
+  /// Método chamado quando o usuário toca no mapa
+  void _onMapTapped(LatLng position) {
+    setState(() {
+      // Atualiza a posição tocada
+      _tappedPosition = position;
+      
+      // Limpa marcadores antigos
+      _markers.clear();
+      
+      // Adiciona um novo marcador na posição tocada
+      _markers.add(
+        Marker(
+          markerId: const MarkerId('tapped_location'),
+          position: position,
+          infoWindow: InfoWindow(
+            title: 'Local Clicado',
+            snippet: '${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}',
+          ),
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Clique no Mapa'),
+      ),
+      body: Stack(
+        children: [
+          // O Mapa do Google
+          GoogleMap(
+            initialCameraPosition: _initialCameraPosition,
+            onTap: _onMapTapped,
+            markers: _markers,
+            mapType: MapType.normal,
+          ),
+          
+          // O Card que mostra as coordenadas
+          _buildInfoCard(),
+        ],
+      ),
+    );
+  }
+
+  /// Widget para construir o card de informações na parte inferior
+  Widget _buildInfoCard() {
+    // Se nenhum local foi tocado, mostra um texto de ajuda
+    if (_tappedPosition == null) {
+      return Positioned(
+        bottom: 20,
+        left: 20,
+        right: 20,
+        child: Card(
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Toque em um local no mapa para ver as coordenadas.',
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Se um local foi tocado, mostra as coordenadas
+    return Positioned(
+      bottom: 20,
+      left: 20,
+      right: 20,
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Coordenadas do Ponto',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              // Formata a latitude e longitude com 6 casas decimais
+              Text(
+                'Latitude: ${_tappedPosition!.latitude.toStringAsFixed(6)}',
+                style: const TextStyle(fontSize: 16),
+              ),
+              Text(
+                'Longitude: ${_tappedPosition!.longitude.toStringAsFixed(6)}',
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
